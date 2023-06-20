@@ -65,7 +65,7 @@ $globalboxes = array();
 if ($user->rights->ultimateimmo->read) {
     $globalboxes[] = array('name' => $langs->trans('MenuImmoOwner'), 'color' =>'#C19875',
         'url' => dol_buildpath('/ultimateimmo/owner/immowner_list.php', 1),
-        'url_add' => dol_buildpath('/ultimateimmo/owner/immorenter_card.php?action=create', 1),
+        'url_add' => dol_buildpath('/ultimateimmo/owner/immoowner_card.php?action=create', 1),
         'right' => $user->rights->ultimateimmo->read,
         'lines' => array(
             array('title' => $langs->trans('MenuImmoNotActiveOwner'), 'value' => getRenterNumber(1), 'url' => dol_buildpath('/ultimateimmo/renter/immorenter_list.php', 1)),
