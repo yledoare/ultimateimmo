@@ -102,7 +102,7 @@ class ImmoOwner extends CommonObjectUltimateImmo
 		'rowid'         => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => 1, 'visible' => -2, 'noteditable' => 1, 'notnull' => 1, 'index' => 1, 'position' => 1, 'comment' => 'Id'),
 		'ref'           => array('type' => 'varchar(128)', 'label' => 'RefOwner', 'enabled' => 1, 'visible' => 1, 'noteditable' => 0, 'default' => '', 'notnull' => 1,  'default'=>'(PROV)', 'index' => 1, 'position' => 10, 'searchall' => 1, 'comment' => 'Reference of object'),
 		'entity'        => array('type' => 'integer', 'label' => 'Entity', 'enabled' => 1, 'visible' => 0, 'notnull' => 1, 'default' => 1, 'index' => 1, 'position' => 20),
-		'fk_soc' 	=> array('type' => 'integer:Societe:societe/class/societe.class.php:1:status=1 AND entity IN (__SHARED_ENTITIES__)', 'label' => 'ThirdParty', 'visible' => 1, 'enabled' => 1, 'position' => 30, 'notnull' => -1, 'index' => 1, 'help' => 'LinkToThirdparty'),
+		'fk_soc' 	=> array('type' => 'integer:Societe:societe/class/societe.class.php:1:(status:=:1)', 'label' => 'ThirdParty', 'visible' => 1, 'enabled' => 1, 'position' => 30, 'notnull' => -1, 'index' => 1, 'help' => 'LinkToThirdparty'),
 		'societe' 	=> array('type' => 'varchar(128)', 'label' => 'Societe', 'visible' => 1, 'enabled' => 1, 'position' => 34, 'notnull' => -1,),
 		'fk_owner_type' => array('type' => 'integer:ImmoOwner_Type:ultimateimmo/class/immoowner_type.class.php', 'label' => 'MenuImmoOwnerType', 'enabled' => 1, 'visible' => 1, 'position' => 32, 'notnull' => -1, 'index' => 1, 'help' => "LinkToOwnerType",),
 		'note_public' 	=> array('type' => 'html', 'label' => 'NotePublic', 'visible' => -1, 'enabled' => 1, 'position' => 40, 'notnull' => -1,),
@@ -124,7 +124,7 @@ class ImmoOwner extends CommonObjectUltimateImmo
 		'fk_user_modif' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'visible' => -2, 'enabled' => 1, 'position' => 511, 'notnull' => -1, 'foreignkey' => 'llx_user.rowid',),
 		'import_key' 	=> array('type' => 'varchar(14)', 'label' => 'ImportId', 'visible' => -2, 'enabled' => 1, 'position' => 1000, 'notnull' => -1,),
 		'status' 	=> array('type' => 'integer', 'label' => 'Status', 'visible' => 1, 'enabled' => 1, 'position' => 1000, 'notnull' => 1, 'index' => 1, 'default'=>1,
-			'arrayofkeyval' => array('0' => 'ImmoOwnerStatusDisabled', '1' => 'ImmoOwnerStatusActive', '-1' => 'Cancel')
+			'arrayofkeyval' => array(0 => 'Draft', 1 => 'Actif', 9 => 'Canceled')
 
 		),
 
@@ -628,7 +628,7 @@ class ImmoOwner extends CommonObjectUltimateImmo
 		$linkend = '</a>';
 
 		$result .= $linkstart;
-		if ($withpicto) $result .= img_object(($notooltip ? '' : $label), ($this->picto ? $this->picto : 'generic'), ($notooltip ? (($withpicto != 2) ? 'class="paddingright"' : '') : 'class="' . (($withpicto != 2) ? 'paddingright ' : '') . 'classfortooltip"'), 0, 0, $notooltip ? 0 : 1);
+		if ($withpicto) $result .= img_object(($notooltip ? '' : $label), ($this->picto ? $this->picto : 'generic'), ($notooltip ? (($withpicto != 2) ? 'class="paddingright" height="24"' : '') : 'class="' . (($withpicto != 2) ? 'paddingright ' : '') . 'classfortooltip" height="24"'), 0, 0, $notooltip ? 0 : 1);
 		if ($withpicto != 2) $result .= $this->civility .' '.$this->firstname .' '.$this->lastname;
 		$result .= $linkend;
 		//if ($withpicto != 2) $result.=(($addlabel && $this->label) ? $sep . dol_trunc($this->label, ($addlabel > 1 ? $addlabel : 0)) : '');
@@ -661,39 +661,27 @@ class ImmoOwner extends CommonObjectUltimateImmo
 	 *  @param  int		$mode          	0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
 	 *  @return string 			       	Label of status
 	 */
-	static function LibStatut($status, $mode = 0)
+	function LibStatut($status, $mode = 0)
 	{
 		global $langs;
 
-		if ($mode == 0) {
-			$prefix = '';
-			if ($status == 1) return $langs->trans('Enabled');
-			if ($status == 0) return $langs->trans('Disabled');
+		if (empty($this->labelStatus) || empty($this->labelStatusShort))
+		{
+			global $langs;
+			//$langs->load("mymodule");
+			$this->labelStatus[self::STATUS_DRAFT] = $langs->trans('Draft');
+			$this->labelStatus[self::STATUS_VALIDATED] = $langs->trans('Actif');
+			$this->labelStatus[self::STATUS_CANCELED] = $langs->trans('Disabled');
+			$this->labelStatusShort[self::STATUS_DRAFT] = $langs->trans('Draft');
+			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('Actif');
+			$this->labelStatusShort[self::STATUS_CANCELED] = $langs->trans('Disabled');
 		}
-		if ($mode == 1) {
-			if ($status == 1) return $langs->trans('Enabled');
-			if ($status == 0) return $langs->trans('Disabled');
-		}
-		if ($mode == 2) {
-			if ($status == 1) return img_picto($langs->trans('Enabled'), 'statut4') . ' ' . $langs->trans('Enabled');
-			if ($status == 0) return img_picto($langs->trans('Disabled'), 'statut5') . ' ' . $langs->trans('Disabled');
-		}
-		if ($mode == 3) {
-			if ($status == 1) return img_picto($langs->trans('Enabled'), 'statut4');
-			if ($status == 0) return img_picto($langs->trans('Disabled'), 'statut5');
-		}
-		if ($mode == 4) {
-			if ($status == 1) return img_picto($langs->trans('Enabled'), 'statut4') . ' ' . $langs->trans('Enabled');
-			if ($status == 0) return img_picto($langs->trans('Disabled'), 'statut5') . ' ' . $langs->trans('Disabled');
-		}
-		if ($mode == 5) {
-			if ($status == 1) return $langs->trans('Enabled') . ' ' . img_picto($langs->trans('Enabled'), 'statut4');
-			if ($status == 0) return $langs->trans('Disabled') . ' ' . img_picto($langs->trans('Disabled'), 'statut5');
-		}
-		if ($mode == 6) {
-			if ($status == 1) return $langs->trans('Enabled') . ' ' . img_picto($langs->trans('Enabled'), 'statut4');
-			if ($status == 0) return $langs->trans('Disabled') . ' ' . img_picto($langs->trans('Disabled'), 'statut5');
-		}
+
+		$statusType = 'status'.$status;
+		if ($status == self::STATUS_VALIDATED) $statusType = 'status1';
+		if ($status == self::STATUS_CANCELED) $statusType = 'status6';
+
+		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
 	}
 
 	/**

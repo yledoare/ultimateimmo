@@ -99,6 +99,7 @@ $dataCharge=array();
 $dataChargeNd=array();
 $dataRevenueFiscal=array();
 $dataResultatImmo=array();
+$dataRevenueNet=array();
 $owner = new ImmoOwner($db);
 $resultFetch = $owner->fetchAll('','',0,0,array());
 if (!is_array($resultFetch) && $resultFetch<0) {
@@ -145,6 +146,7 @@ print '</form>' . "\n";
 
 //Resultat Immo
 print '</td><td valign="top" width="70%" class="notopnoleftnoright"></td></tr>';
+print '</table>';
 print "\n<br>\n";
 print '<table class="noborder" width="100%">';
 print '<tr class="liste_titre"><td width="10%">' . $langs->trans("ImmoResultResultatImmo") . '</td>';
@@ -195,7 +197,6 @@ if ($resql) {
 			$total += $row->{'month_'.$month_num};
 			$total_month[$month_num] += (float) $row->{'month_'.$month_num};
 			$dataResultatImmo[$row->rowid][$month_num] = (float) $row->{'month_'.$month_num};
-
 		}
 		print '<td align="right"><b>' . price($total) . '</b></td>';
 		print '</tr>';
@@ -570,6 +571,8 @@ print "</table>\n";
 $dataRevenueNet = array();
 
 if (!empty($dataRevenueFiscal)) {
+
+
 	$immoData=array();
 	if (!empty($dataEncaissement)) {
 		foreach($dataEncaissement as $ibId=>$dataMonth) {

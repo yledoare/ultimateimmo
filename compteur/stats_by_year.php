@@ -58,6 +58,7 @@ if (!$res) {
 // Class
 require_once DOL_DOCUMENT_ROOT . "/core/lib/date.lib.php";
 dol_include_once('/ultimateimmo/class/immocompteur.class.php');
+dol_include_once('/ultimateimmo/class/immocompteur_type.class.php');
 dol_include_once('/ultimateimmo/class/immoproperty.class.php');
 dol_include_once('/ultimateimmo/class/html.formultimateimmo.class.php');
 
@@ -65,6 +66,7 @@ dol_include_once('/ultimateimmo/class/html.formultimateimmo.class.php');
 $langs->loadLangs(array("ultimateimmo@ultimateimmo", "other", "bills"));
 
 $object = new ImmoCompteur($db);
+$compteur_type=new ImmoCompteur_Type($db);
 $properties = new ImmoProperty($db);
 $form = new Form($db);
 $formImmo = new FormUltimateimmo($db);
@@ -80,7 +82,14 @@ if (GETPOSTISSET('search_fk_immoproperty') && GETPOST('search_fk_immoproperty', 
 if (GETPOSTISSET('search_compteur_type_id') && GETPOST('search_compteur_type_id', 'int') != -1) {
 	$search['compteur_type_id'] = GETPOST('search_compteur_type_id', 'int');
 } else {
-	$search['compteur_type_id']=0;
+	$search['compteur_type_id']=1;
+	$res=$compteur_type->fetchAll('','',0,0,array('active'=>1));
+	if (!is_array($res) && $res<0) {
+		setEventMessages($compteur_type->error,$compteur_type->errors,'errors');
+	}else {
+		$search['compteur_type_id']=reset($res)->id;
+	}
+
 }
 if (GETPOSTISSET('search_year')) {
 	$search['year'] = GETPOST('search_year', 'int');
@@ -121,7 +130,7 @@ $sql = 'SELECT ';
 $sql .= $object->getFieldList('t');
 $sql .= ',ict.label as label_compteur';
 $sql .= " FROM ".MAIN_DB_PREFIX.$object->table_element." as t";
-$sql .= " LEFT JOIN ".MAIN_DB_PREFIX."c_ultimateimmo_immocompteur_type as ict ON ict.rowid=t.compteur_type_id";
+$sql .= " INNER JOIN ".MAIN_DB_PREFIX."c_ultimateimmo_immocompteur_type as ict ON ict.rowid=t.compteur_type_id";
 $sql .= " WHERE 1=1";
 if (!empty($search['fk_immoproperty'])) {
 	$sql .=" AND t.fk_immoproperty=".(int) $search['fk_immoproperty'];
@@ -229,7 +238,7 @@ foreach ($result_data as $obj) {
 	print '<td class="left">' . ($obj->value_cpt_dt_last  - $obj->value_cpt_dt_first). '</td>';
 
 	//ImmoCompteurDtDiff
-	print '<td class="left">' . (($db->jdate($obj->dt_last) - $db->jdate($obj->dt_first)) /(24*60*365)). '</td>';
+	print '<td class="left">' . price((($db->jdate($obj->dt_last) - $db->jdate($obj->dt_first))) / (60*60*24)). '</td>';
 
 	print '<td class="left"></td>';
 

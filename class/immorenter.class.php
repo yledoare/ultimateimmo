@@ -98,7 +98,7 @@ class ImmoRenter extends CommonObject
 		'entity'        => array('type' => 'integer', 'label' => 'Entity', 'enabled' => 1, 'visible' => 0, 'notnull' => 1, 'default' => 1, 'index' => 1, 'position' => 20),
 		'fk_rent' => array('type' => 'integer:ImmoRent:ultimateimmo/class/immorent.class.php', 'label' => 'ImmoRent', 'visible' => 0, 'enabled' => 0, 'position' => 25, 'notnull' => -1, 'index' => 1, 'foreignkey' => 'ultimateimmo_immorent.rowid', 'searchall' => 1, 'help' => "LinkToRent",),
 		'fk_owner' => array('type' => 'integer:ImmoOwner:ultimateimmo/class/immoowner.class.php', 'label' => 'Owner', 'enabled' => 0, 'visible' => 0, 'position' => 30, 'notnull' => -1, 'index' => 1, 'foreignkey'=>'ultimateimmo_immoowner.fk_owner', 'help' => "LinkToOwner",),
-		'fk_soc' 		=> array('type' => 'integer:Societe:societe/class/societe.class.php:1:status=1 AND entity IN (__SHARED_ENTITIES__)', 'label' => 'ThirdParty', 'visible' => 1, 'enabled' => 1, 'position' => 35, 'notnull' => -1, 'index' => 1, 'help' => 'LinkToThirdparty'),
+		'fk_soc' 		=> array('type' => 'integer:Societe:societe/class/societe.class.php:1:(status:=:1)', 'label' => 'ThirdParty', 'visible' => 1, 'enabled' => 1, 'position' => 35, 'notnull' => -1, 'index' => 1, 'help' => 'LinkToThirdparty'),
 		'societe' => array('type' => 'varchar(128)', 'label' => 'Societe', 'visible' => 1, 'enabled' => 1, 'position' => 36, 'notnull' => -1,),
 		'note_public' => array('type' => 'html', 'label' => 'NotePublic', 'visible' => 1, 'enabled' => 1, 'position' => 40, 'notnull' => -1,),
 		'note_private' => array('type' => 'html', 'label' => 'NotePrivate', 'visible' => 1, 'enabled' => 1, 'position' => 50, 'notnull' => -1,),
@@ -1036,7 +1036,7 @@ class ImmoRenter extends CommonObject
 			$linkend = '</a>';
 
 		$result .= $linkstart;
-		if ($withpicto) $result .= img_object(($notooltip ? '' : $label), ($this->picto ? $this->picto : 'generic'), ($notooltip ? (($withpicto != 2) ? 'class="paddingright"' : '') : 'class="' . (($withpicto != 2) ? 'paddingright ' : '') . 'classfortooltip"'), 0, 0, $notooltip ? 0 : 1);
+		if ($withpicto) $result .= img_object(($notooltip ? '' : $label), ($this->picto ? $this->picto : 'generic'), ($notooltip ? (($withpicto != 2) ? 'class="paddingright" height="24"' : '') : 'class="' . (($withpicto != 2) ? 'paddingright ' : '') . 'classfortooltip" height="24"'), 0, 0, $notooltip ? 0 : 1);
 		if ($withpicto != 2)  $result .= ($maxlen ?dol_trunc($this->getFullName($langs), $maxlen) : $this->getFullName($langs));
 		$result .= $linkend;
 		//if ($withpicto != 2) $result.=(($addlabel && $this->label) ? $sep . dol_trunc($this->label, ($addlabel > 1 ? $addlabel : 0)) : '');
